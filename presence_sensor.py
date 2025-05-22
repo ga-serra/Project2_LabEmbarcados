@@ -9,7 +9,7 @@ class Presence_Sensor:
         # returns True if detected presence
         return self.sensor.value == 1
     
-    def scan_presence(self, _time=1, activate):
+    def scan_presence(self, activate, _time=1):
         while activate == True:
             if self.detected():
                 print("Someone is in place")

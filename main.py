@@ -1,10 +1,10 @@
 from machine import Pin, UART
+import photoresistor
 from utime import sleep
 from servo import Servo
 import time
 from dht import DHT11, InvalidCheckSum
-from PicoDHT22 import PicoDHT22
-
+from photoresistor import Photoresistor
 
 # Um número entre 0 e 1 que indica a que nível de luminosidade a lâmpada será acesa
 LIGHT_THRESHOLD = 0.5
@@ -15,6 +15,7 @@ dht_pin = Pin(4, Pin.OUT, Pin.PULL_DOWN)
 bluetooth = UART(0, baudrate=115200, tx=Pin(16), rx=Pin(17))
 servo = Servo(8)
 dht_sensor = DHT11(dht_pin)
+photoresistor = Photoresistor(28)
 
 def handle_command(msg):
     if msg == "report\r\n":
@@ -36,12 +37,9 @@ def handle_command(msg):
         servo.step_to_angle(0)
 
 
-def read_light_sensor():
-    return 0.7
-
-
 def check_lighting():
-    light_meas = read_light_sensor()
+    light_meas = photoresistor.read_sensor()
+    print(light_meas)
     if(light_meas <= LIGHT_THRESHOLD):
         led_pin.value(1)
     else:

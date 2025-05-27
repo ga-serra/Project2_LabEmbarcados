@@ -21,7 +21,7 @@ class Servo:
             time.sleep(delay)
         
         self.write_angle(angle)
-        # self.current_angle = angle
+        self.current_angle = angle
 
     def write_angle(self, angle):
         # angle for time (pulse)

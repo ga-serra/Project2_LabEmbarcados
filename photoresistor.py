@@ -6,7 +6,7 @@ class photoresistor:
         self.analog = ADC(Pin(pin))
 
     def read_sensor(self):
-        # return value between 0 and 65535
-        
+        # read the voltage and return a value between 0 and 1
         digital_value = self.analog.read_u16() 
-        return digital_value
+        value = digital_value / 65535             
+        return value

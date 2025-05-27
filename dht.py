@@ -1,7 +1,7 @@
 import array
 import micropython
 import utime
-from machine import Pin
+from machine import Pin, enable_irq, disable_irq
 from micropython import const
  
 class InvalidCheckSum(Exception):
@@ -32,7 +32,7 @@ class DHT11:
         ):
             # Less than a second since last read, which is too soon according
             # to the datasheet
-            return
+            return self._temperature, self._humidity
  
         self._send_init_signal()
         pulses = self._capture_pulses()
@@ -42,15 +42,15 @@ class DHT11:
         self._humidity = buffer[0] + buffer[1] / 10
         self._temperature = buffer[2] + buffer[3] / 10
         self._last_measure = utime.ticks_us()
+
+        return self._temperature, self._humidity
  
     @property
     def humidity(self):
-        self.measure()
         return self._humidity
  
     @property
     def temperature(self):
-        self.measure()
         return self._temperature
  
     def _send_init_signal(self):
@@ -63,17 +63,21 @@ class DHT11:
     @micropython.native
     def _capture_pulses(self):
         pin = self._pin
-        pin.init(Pin.IN, Pin.PULL_UP)
  
         val = 1
         idx = 0
         transitions = bytearray(EXPECTED_PULSES)
         unchanged = 0
+
+        # Disable interrupts while we receive the data from the sensor
+        state = disable_irq()
+        pin.init(Pin.IN, Pin.PULL_UP)
         timestamp = utime.ticks_us()
  
         while unchanged < MAX_UNCHANGED:
             if val != pin.value():
                 if idx >= EXPECTED_PULSES:
+                    enable_irq(state)
                     raise InvalidPulseCount(
                         "Got more than {} pulses".format(EXPECTED_PULSES)
                     )
@@ -87,6 +91,10 @@ class DHT11:
             else:
                 unchanged += 1
         pin.init(Pin.OUT, Pin.PULL_DOWN)
+
+        # Re-enable interrupts
+        enable_irq(state)
+
         if idx != EXPECTED_PULSES:
             raise InvalidPulseCount(
                 "Expected {} but got {} pulses".format(EXPECTED_PULSES, idx)

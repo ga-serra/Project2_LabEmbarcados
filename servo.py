@@ -7,7 +7,7 @@ class Servo:
         self.pwm.freq(freq)
         self.current_angle = 0
 
-    def set_angle(self, angle,delay=0.01, step_size=1):
+    def step_to_angle(self, angle,delay=0.01, step_size=1):
         # Angle has to be between 0º and 180º
         if angle < 0:
             angle = 0
@@ -21,7 +21,7 @@ class Servo:
             time.sleep(delay)
         
         self.write_angle(angle)
-        self.current_angle = angle
+        # self.current_angle = angle
 
     def write_angle(self, angle):
         # angle for time (pulse)

@@ -7,6 +7,16 @@ class Servo:
         self.pwm.freq(freq)
         self.current_angle = 0
 
+    """
+    @brief Move o servo-motor gradualmente para um dado ângulo
+
+    @param angle int O ângulo final desejado para o motor
+    @param delay float O delay em segundos entre cada movimentação do motor até `angle`
+    @param step_size int O intervalo percorrido pelo motor a cada motivmentação até `angle`
+    
+    @pre angle > 0
+    @pre angle < 180
+    """
     def step_to_angle(self, angle,delay=0.01, step_size=1):
         # Angle has to be between 0º and 180º
         if angle < 0:
@@ -23,6 +33,10 @@ class Servo:
         self.write_angle(angle)
         self.current_angle = angle
 
+    """
+    @brief Move o servo-motor imediatamente para um dado ângulo
+    @param angle int
+    """
     def write_angle(self, angle):
         # angle for time (pulse)
         min_time = 500                  # minimum pulse time
